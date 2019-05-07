@@ -11,6 +11,11 @@
         Copyright 2016 Vera Lobacheva (http://iamvera.com)
         Released under the MIT license
     -->
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+	<script type="text/javascript" src="lib/magic-wand.js"></script>
 </head>
 <body>
 <noscript>
@@ -34,6 +39,7 @@
                 <li id="rectangle"><a href="#">rectangle</a></li>
                 <li id="circle"><a href="#">circle</a></li>
                 <li id="polygon"><a href="#">polygon</a></li>
+                <li id="magic_wand"><a href="#">magic poly</a></li>
                 <li id="edit"><a href="#">edit</a></li>
                 <li id="to_html"><a href="#">to html</a></li>
                 <li id="preview"><a href="#">preview</a></li>
@@ -48,6 +54,7 @@
     <div id="image_wrapper">
         <div id="image">
             <img src="" alt="#" id="img" />
+            <canvas id="resultCanvas"></canvas>
             <svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny" id="svg"></svg>
         </div>
     </div>
