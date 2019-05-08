@@ -676,6 +676,7 @@ var summerHtmlImageMapCreator = (function() {
                 save : function() {
                     var result = areasIO.toJSON();
                     window.localStorage.setItem(KEY_NAME, result);
+					console.info(result);
                     //console.info('Editor ' + result + ' saved');
                 
                     alert('Saved');
@@ -3099,7 +3100,7 @@ var summerHtmlImageMapCreator = (function() {
         clear.addEventListener('click', onClearButtonClick, false);
         from_html.addEventListener('click', onFromHtmlButtonClick, false);
         to_html.addEventListener('click', onToHtmlButtonClick, false);
-        preview.addEventListener('click', onPreviewButtonClick, false);
+        if (preview) preview.addEventListener('click', onPreviewButtonClick, false);
         edit.addEventListener('click', onEditButtonClick, false);
         new_image.addEventListener('click', onNewImageButtonClick, false);
         show_help.addEventListener('click', onShowHelpButtonClick, false);
