@@ -311,7 +311,7 @@ a:link, a:visited {
 .error#url {
     border: 2px solid #F00;
 }
-#edit_details {
+.optionsbox {
     position: absolute;
     top: 100px;
     left: 100px;
@@ -322,25 +322,33 @@ a:link, a:visited {
     display: none;
     z-index: 1000;
     color: #FFF;
-    font-size: 0px;
+    font-size: 11px;
 }
-#edit_details h5 {
+.optionsbox h5 {
     margin-bottom: 10px;
     font-size: 14px;
     cursor: move;
 }
-.changed#edit_details h5, p.changed label {
+.changed.optionsbox h5, p.changed label {
     color: #32c832;
 }
-#edit_details p {
+.optionsbox {
+	color:white;
+}
+.optionsbox p {
     margin-bottom: 10px;
 }
-#edit_details label {
+.optionsbox label {
     font-size: 11px;
     display: block;
     margin-bottom: 2px;
 }
-#edit_details input[type=text] {
+.optionsbox input[type=number].simple-number {
+	display:inline-block;
+	width:40px;
+}
+
+.optionsbox input[type=text], .optionsbox input[type=number] {
     background: #FFF;
     font-size: 12px;
     font-family: sans-serif;
@@ -348,8 +356,8 @@ a:link, a:visited {
     width: 120px;
     border-radius: 5px;
     box-shadow: rgba(0,0,0,0.5) 0 1px 2px inset;
-}
-.changed#edit_details button {
+}	
+.changed.optionsbox button {
     box-shadow: rgba(50,200,50,1) 0 0 1px 2px;
 }
 #help {
@@ -468,6 +476,15 @@ a:link, a:visited {
 }
 
 /* CSS for SVG-elements */
+
+#resultCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: inline-block;
+
+}
 
 #svg {
     position: absolute;

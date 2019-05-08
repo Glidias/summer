@@ -15,6 +15,7 @@
   src="https://code.jquery.com/jquery-3.4.1.min.js"
   integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
   crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 	<script type="text/javascript" src="lib/magic-wand.js"></script>
 </head>
 <body>
@@ -39,7 +40,7 @@
                 <li id="rectangle"><a href="#">rectangle</a></li>
                 <li id="circle"><a href="#">circle</a></li>
                 <li id="polygon"><a href="#">polygon</a></li>
-                <li id="magic_wand"><a href="#">magic poly</a></li>
+                <li id="magic_wand"><a href="#">magic wand</a></li>
                 <li id="edit"><a href="#">edit</a></li>
                 <li id="to_html"><a href="#">to html</a></li>
                 <li id="preview"><a href="#">preview</a></li>
@@ -67,7 +68,7 @@
 </div>
 
 <!-- Edit details block -->
-<form id="edit_details">
+<form  class="optionsbox" id="edit_details">
     <h5>Attributes</h5>
     <span class="close_button" title="close"></span>
     <p>
@@ -83,6 +84,33 @@
         <input type="text" id="title_attr" />
     </p>
     <button id="save_details">Save</button>
+</form>
+	
+<!-- Magic Wand options block -->
+<form class="optionsbox" id="magic_wand_options" v-show="vmVisible" style="display:block">
+    <h5>Magic Wand</h5>
+    <p>
+        <label for="threshold_attr">Threshold: <span><input type="number" class="simple-number" v-model="currentThreshold" number min="0" max="255"  /></span></label>
+        <!--<input type="range" v-model="currentThreshold" number min="0" max="255" id="threshold_attr" />-->
+    </p>
+     <p>
+        <label for="blur_radius_attr">Blur Radius</label>
+        <input type="number" v-model="blurRadius" number min="0" id="blur_radius_attr" class="simple-number" />
+    </p>
+	<hr/>
+    <p>
+        <label for="simplify_tolerant_attr">Simplify Tolerant</label>
+        <input type="number" v-model="simplifyTolerant" number min="0" id="simplify_tolerant_attr" class="simple-number" />
+    </p>
+	<p>
+        <label for="simplify_count_attr">Simplify Count</label>
+        <input type="number" v-model="simplifyCount" number min="1" max="64" id="simplify_count_attr" class="simple-number" />
+    </p>
+	<p>
+        <label><input type="checkbox" v-model="previewSimplifyState" number min="0" id="blur_radius_attr" /> Preview Shape</label>
+	</p>
+    <button id="magic_wand_trigger_button" @click="createShape()">Create Shape</button>
+	<!--<button id="magic_wand_trigger_button2">Create Shape (Outer only)</button>-->
 </form>
 
 <!-- From html block -->

@@ -176,14 +176,19 @@ var summerHtmlImageMapCreator = (function() {
                     width: 0,
                     height: 0
                 },
+				vues: [],
                 magicWand: {
-                    currentThreshold: 15, // same as above
-                    blurRadius: 5,  // allow shift to add to threshold
-                    simplifyTolerant: 3,
-                    simplifyCount: 30,
+					vm: {
+						//threshold: 15,
+						currentThreshold: 15, // same as above
+						blurRadius: 5,  // allow shift to add to threshold
+						simplifyTolerant: 3,
+						simplifyCount: 30,
+						previewSimplifyState: false
+					},
                     hatchLength:4,
                     hatchOffset: 0,
-
+					csCache: null,
                     imageInfo: null,
                     cacheInd:  null,
                     mask:  null,    
@@ -207,6 +212,37 @@ var summerHtmlImageMapCreator = (function() {
         function recalcOffsetValues() {
             state.offset = utils.getOffset(domElements.container);
         }
+		
+		function flickVMs() {
+			this.vmRefresh;
+			return state.appMode === this.vmAppMode;
+		}
+		
+		function createVue(params, appMode) {
+
+			var computed;
+			var data;
+			if (!params.computed) {
+				computed = {};
+				params.computed = computed;
+			} else {
+				computed = params.computed;
+			}
+			
+			if (!params.data) {
+				data = {};
+				params.data = data;
+			} else {
+				data = params.data
+			}
+			
+			data.vmRefresh = 0;
+			data.vmAppMode = appMode;
+			computed.vmVisible = flickVMs;
+			
+			var vm = new Vue(params);
+			state.vues.push(vm);
+		}
 
         /* Get offset value */
         window.addEventListener('resize', recalcOffsetValues, false);
@@ -218,6 +254,23 @@ var summerHtmlImageMapCreator = (function() {
         domElements.img.addEventListener('dragstart', function(e){
             e.preventDefault();
         }, false);
+		
+		
+		createVue({
+			el: "#magic_wand_options",
+			data: state.magicWand.vm,
+			watch: {
+				currentThreshold: refreshWandMarqueeState,
+				blurRadius: refreshWandMarqueeState,
+				simplifyTolerant: refreshSimplifyState,
+				simplifyCount: refreshSimplifyState,
+				previewSimplifyState:  refreshWander
+			},
+			methods: {
+				createShape: createMagicWandShape
+			}
+		}, 'magic_wand');
+		
 
         /* Display cursor coordinates info */
         var cursor_position_info = (function() {
@@ -321,6 +374,27 @@ var summerHtmlImageMapCreator = (function() {
         
 
         // Magic wand functions
+		
+		function refreshWandMarqueeState() {
+			if (!state.magicWand.imageInfo) return;
+			if (!state.magicWand.downPoint) return;
+			if (state.magicWand.vm.previewSimplifyState) return;
+			drawMask(state.magicWand.downPoint.x, state.magicWand.downPoint.y);
+		}
+		
+		function refreshSimplifyState() {
+			if (!state.magicWand.imageInfo) return;
+			if (!state.magicWand.downPoint) return;
+			if (!state.magicWand.vm.previewSimplifyState) return;
+			drawMask(state.magicWand.downPoint.x, state.magicWand.downPoint.y);
+		}
+		
+		function refreshWander() {
+			if (!state.magicWand.imageInfo) return;
+			if (!state.magicWand.downPoint) return;
+			drawMask(state.magicWand.downPoint.x, state.magicWand.downPoint.y);
+		}
+		
         function drawMask(x, y) {
             if (!state.magicWand.imageInfo) return;
             
@@ -331,8 +405,8 @@ var summerHtmlImageMapCreator = (function() {
                 bytes: 4
             };
         
-            state.magicWand.mask = MagicWand.floodFill(image, x, y, state.magicWand.currentThreshold);
-            state.magicWand.mask = MagicWand.gaussBlurOnlyBorder(state.magicWand.mask, state.magicWand.blurRadius);
+            state.magicWand.mask = MagicWand.floodFill(image, x, y, state.magicWand.vm.currentThreshold);
+            state.magicWand.mask = MagicWand.gaussBlurOnlyBorder(state.magicWand.mask, state.magicWand.vm.blurRadius);
             drawBorder();
         };
         
@@ -342,6 +416,56 @@ var summerHtmlImageMapCreator = (function() {
                 y = Math.round((e.clientY || e.pageY) - p.top);
             return { x: x, y: y };
         };
+		function createMagicWandShape() {
+			if (!state.magicWand.mask && !state.magicWand.csCache) {
+				return;
+			}
+			var cs;
+			
+			if (state.magicWand.csCache) {
+				cs = state.magicWand.csCache;
+			} else {
+				cs = MagicWand.traceContours(state.magicWand.csCache ||  state.magicWand.mask);
+				cs = MagicWand.simplifyContours(cs, state.magicWand.vm.simplifyTolerant, state.magicWand.vm.simplifyCount);
+			}
+			
+			state.magicWand.csCache = null;
+			state.magicWand.mask = null;
+			
+			var coords;
+			
+			 // draw contours
+            var ctx = state.magicWand.imageInfo.context;
+            ctx.clearRect(0, 0, state.magicWand.imageInfo.width, state.magicWand.imageInfo.height);
+            //inner
+           
+            for (var i = 0; i < cs.length; i++) {
+                if (!cs[i].inner) continue;
+				var ps = cs[i].points;
+               // ctx.moveTo(ps[0].x, ps[0].y);
+                for (var j = 1; j < ps.length; j++) {
+                   // ctx.lineTo(ps[j].x, ps[j].y);
+                }
+            }
+			
+
+          
+            //outer
+			coords = [];
+            for (var i = 0; i < cs.length; i++) {
+                if (cs[i].inner) continue;
+                var ps = cs[i].points;
+                //ctx.moveTo(ps[0].x, ps[0].y);
+				coords.push(ps[0]);
+                for (var j = 1; j < ps.length; j++) {
+                  //  ctx.lineTo(ps[j].x, ps[j].y);
+				  coords.push(ps[j]);
+                }
+            }
+			
+			Polygon.createFinishedPolygon(coords);
+           
+		}
         function hatchTick() {
             state.magicWand.hatchOffset = (state.magicWand.hatchOffset + 1) % (state.magicWand.hatchLength * 2);
             drawBorder(true);
@@ -379,12 +503,16 @@ var summerHtmlImageMapCreator = (function() {
         
             ctx.putImageData(imgData, 0, 0);
 
-            traceContours();
+            if (state.magicWand.vm.previewSimplifyState) traceContours();
         };
+		
+		
+		
         function traceContours() {
-            var cs = MagicWand.traceContours(state.magicWand.mask);
-            cs = MagicWand.simplifyContours(cs, state.magicWand.simplifyTolerant, state.magicWand.simplifyCount);
+			var cs = MagicWand.traceContours(state.magicWand.mask);
+            cs = MagicWand.simplifyContours(cs, state.magicWand.vm.simplifyTolerant, state.magicWand.vm.simplifyCount);
         
+			state.magicWand.csCache = cs;
             state.magicWand.mask = null;
         
             // draw contours
@@ -415,6 +543,7 @@ var summerHtmlImageMapCreator = (function() {
             }
             ctx.strokeStyle = "blue";
             ctx.stroke();    
+			
         };
 
          
@@ -547,7 +676,7 @@ var summerHtmlImageMapCreator = (function() {
                 save : function() {
                     var result = areasIO.toJSON();
                     window.localStorage.setItem(KEY_NAME, result);
-                    console.info('Editor ' + result + ' saved');
+                    //console.info('Editor ' + result + ' saved');
                 
                     alert('Saved');
                 },
@@ -672,13 +801,14 @@ var summerHtmlImageMapCreator = (function() {
                 utils.foreach(state.areas, function(x) {
                     x.deselect();
                 });
-
-
-                var w = state.magicWand.imageInfo.width,
-                h = state.magicWand.imageInfo.height,
-                ctx = state.magicWand.imageInfo.context;
-                ctx.clearRect(0, 0, w, h);
-                return this;
+	
+				if (state.magicWand.mask || state.magicWand.csCache) {
+					var w = state.magicWand.imageInfo.width,
+					h = state.magicWand.imageInfo.height,
+					ctx = state.magicWand.imageInfo.context;
+					ctx.clearRect(0, 0, w, h);
+                }
+				return this;
             },
             getIsDraw : function() {
                 return state.isDraw;
@@ -689,6 +819,12 @@ var summerHtmlImageMapCreator = (function() {
             },
             setMode : function(arg) {
                 state.appMode = arg;
+				//state.vmAppMode = args;
+				var vues = state.vues;
+				var i = vues.length;
+				while(--i > -1) {
+					vues[i].vmRefresh++;
+				}
                 return this;
             },
             getMode : function() {
@@ -1009,7 +1145,7 @@ var summerHtmlImageMapCreator = (function() {
      */
     Area.prototype.select = function() {
         this._el.classList.add(Area.CLASS_NAMES.SELECTED);
-        console.info(this.toString() + ' is selected now');
+        //console.info(this.toString() + ' is selected now');
         
         return this;
     };
@@ -2377,6 +2513,15 @@ var summerHtmlImageMapCreator = (function() {
            .addEvent(document, 'keydown', newArea.onStopDrawing.bind(newArea))
            .addEvent(newArea._helpers.points[0]._el, 'click', newArea.onStopDrawing.bind(newArea));
            
+        return newArea;
+    };
+	
+	 Polygon.createFinishedPolygon = function(coords) {
+        var newArea = new Polygon({
+            points : coords,
+            isOpened : false
+        });
+		newArea.close();
         return newArea;
     };
 
