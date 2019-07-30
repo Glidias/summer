@@ -19,7 +19,7 @@ html, body, div, span, applet, object, h1, h2, h3, h4, h5, h6, p, a, em, img, st
 }
 
 $stroke-width:0.5px;
-$stroke-width-recthelper:2px;
+$stroke-width-recthelper:2px; 
 
 :focus {
     outline: 0;
@@ -182,6 +182,10 @@ a:link, a:visited {
 }
 #code_content {
     padding: 10px;
+	overflow:auto;
+	height:calc(100vh - 20px);
+	top:20px;
+	position:relative;
 }
 .close_button {
     width: 10px;

@@ -365,7 +365,9 @@ var summerHtmlImageMapCreator = (function() {
             if (state.appMode === 'editing') {
                 if (e.target.tagName === 'rect' || e.target.tagName === 'circle' || e.target.tagName === 'polygon') {
                     state.selectedArea = e.target.parentNode.obj;
+					
                     info.load(state.selectedArea, e.pageX, e.pageY);
+					
                 }
             }
         }
@@ -412,8 +414,8 @@ var summerHtmlImageMapCreator = (function() {
         
         function getMousePosition(e) {
             var p = $(e.target).offset(),
-                x = Math.round((e.clientX || e.pageX) - p.left),
-                y = Math.round((e.clientY || e.pageY) - p.top);
+                x = Math.round((e.pageX) - p.left),
+                y = Math.round((e.pageY) - p.top);
             return { x: x, y: y };
         };
 		function createMagicWandShape() {
@@ -2667,9 +2669,9 @@ var summerHtmlImageMapCreator = (function() {
         return {
             load : function(object, new_x, new_y) {
                 obj = object;
-                href_attr.value = object.href ? object.href : '';
-                alt_attr.value = object.alt ? object.alt : '';
-                title_attr.value = object.title ? object.title : '';
+                href_attr.value = object._attributes && object._attributes.href ? object._attributes.href : '';
+                alt_attr.value = object._attributes && object._attributes.alt ? object._attributes.alt : '';
+                title_attr.value = object._attributes && object._attributes.title ? object._attributes.title : '';
                 utils.show(form);
                 if (new_x && new_y) {
                     x = new_x;
